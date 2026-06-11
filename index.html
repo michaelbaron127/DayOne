@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DayOne</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: #04060f;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ══════════════════════════════════════
+       NAV — fixed, always on top
+    ══════════════════════════════════════ */
+    /* ── Top announcement banner ── */
+    #top-banner {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 110;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(90deg, #c45200, #e86a00, #c45200);
+      background-size: 200% 100%;
+      animation: bannerShift 5s ease-in-out infinite alternate;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    @keyframes bannerShift {
+      from { background-position: 0% 50%; }
+      to   { background-position: 100% 50%; }
+    }
+
+    .banner-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,230,160,0.85);
+      animation: dotPulse 1.6s ease-in-out infinite alternate;
+      flex-shrink: 0;
+    }
+
+    @keyframes dotPulse {
+      from { opacity: 0.5; transform: scale(0.85); }
+      to   { opacity: 1.0; transform: scale(1.15); }
+    }
+
+    .banner-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    .banner-cta {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,230,160,0.95);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    nav {
+      position: fixed;
+      top: 28px; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 52px;
+      background: rgba(4,6,15,0.60);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .nav-logo {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 34px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.60);
+      list-style: none;
+    }
+
+    .nav-links li { cursor: pointer; transition: color 0.2s; }
+    .nav-links li:hover { color: rgba(255,255,255,0.95); }
+
+    /* Active nav highlight */
+    .nav-links li.active > a,
+    .nav-links li.active {
+      color: #fff !important;
+      position: relative;
+    }
+    .nav-links li.active > a::after,
+    .nav-links li.active::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0; right: 0;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, rgba(255,165,40,1.0), transparent);
+    }
+
+    .btn-nav-waitlist {
+      padding: 10px 20px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.18s;
+      white-space: nowrap;
+    }
+    .btn-nav-waitlist:hover { background: rgba(255,255,255,0.16); }
+
+    /* ══════════════════════════════════════
+       HERO SECTION
+    ══════════════════════════════════════ */
+    #hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #ray-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .hero-body {
+      position: relative;
+      z-index: 20;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 108px 24px 96px; /* extra top for banner+nav; extra bottom for descenders */
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 20px;
+      animation: fadeUp 1s 0.3s both;
+    }
+
+    .hero-heading {
+      font-size: clamp(36px, 5.4vw, 78px);
+      line-height: 1.12;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      max-width: 20ch;
+      text-wrap: balance;
+      padding-bottom: 0.18em; /* space for descenders like g, p, y */
+      background: linear-gradient(160deg, #fff 30%, rgba(255,185,60,0.90) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      filter: drop-shadow(0 2px 30px rgba(255,150,30,0.18));
+      animation: fadeUp 1s 0.45s both;
+    }
+
+    .hero-sub {
+      margin-top: 18px;
+      font-size: 15px;
+      line-height: 1.65;
+      color: rgba(255,255,255,0.48);
+      max-width: 38ch;
+      text-wrap: balance;
+      text-shadow: 0 1px 20px rgba(0,0,0,0.8);
+      animation: fadeUp 1s 0.6s both;
+    }
+
+    .form-row {
+      margin-top: 32px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: fadeUp 1s 0.75s both;
+    }
+
+    .email-input {
+      padding: 13px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(14px);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      width: 220px;
+      outline: none;
+      transition: border-color 0.18s, background 0.18s;
+    }
+    .email-input::placeholder { color: rgba(255,255,255,0.28); }
+    .email-input:focus {
+      border-color: rgba(255,255,255,0.28);
+      background: rgba(0,0,0,0.5);
+    }
+
+    .btn-join {
+      padding: 13px 24px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ff9520, #e06800);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+      transition: opacity 0.18s, transform 0.12s, box-shadow 0.18s;
+      box-shadow: 0 4px 24px rgba(255,120,0,0.38);
+    }
+    .btn-join:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 6px 32px rgba(255,120,0,0.52); }
+
+    .form-note {
+      margin-top: 12px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.22);
+      letter-spacing: 0.02em;
+      animation: fadeUp 1s 0.9s both;
+    }
+
+    .form-success-msg {
+      margin-top: 8px;
+      margin-bottom: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: rgba(180,255,160,0.92);
+      letter-spacing: -0.01em;
+      animation: fadeUp 0.5s both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CTA block inside hero — sits below the email form */
+    .hero-cta-section {
+      position: relative;
+      z-index: 20;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 24px 100px;
+    }
+
+    /* ══════════════════════════════════════
+       CONTACT SECTION
+    ══════════════════════════════════════ */
+    #contact {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 24px 120px;
+      background: rgba(4,6,15,0.84);
+      overflow: hidden;
+      text-align: center;
+    }
+
+    #contact::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(195,165,100,0.18), transparent);
+    }
+
+    .contact-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .contact-kicker {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 20px;
+    }
+
+    .contact-headline {
+      font-size: clamp(28px, 4vw, 54px);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+
+    .contact-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,0.44);
+      line-height: 1.65;
+      max-width: 40ch;
+      margin: 0 auto 40px;
+    }
+
+    .contact-email-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 18px 36px;
+      border-radius: 999px;
+      border: 1px solid rgba(195,165,100,0.28);
+      background: rgba(195,165,100,0.06);
+      color: rgba(220,200,160,0.90);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .contact-email-link:hover {
+      background: rgba(195,165,100,0.12);
+      border-color: rgba(195,165,100,0.55);
+      color: rgba(235,215,170,1.0);
+    }
+
+    .contact-note {
+      margin-top: 20px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.22);
+      letter-spacing: 0.02em;
+    }
+
+    /* ══════════════════════════════════════
+       ABOUT SECTION
+    ══════════════════════════════════════ */
+    #about {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 24px 100px;
+      background: linear-gradient(
+        to bottom,
+        transparent       0%,
+        transparent       8%,
+        rgba(4,6,15,0.65) 18%,
+        rgba(4,6,15,0.82) 28%,
+        rgba(4,6,15,0.82) 100%
+      );
+      overflow: hidden;
+    }
+
+    #about::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        /* Blue glow starts at 50% into section — never touches the top boundary */
+        radial-gradient(ellipse 120% 60% at 50% 60%,
+          rgba(12,24,85,0.38) 0%, rgba(8,16,55,0.12) 55%, transparent 78%),
+        radial-gradient(ellipse 70% 40% at 50% 100%,
+          rgba(8,14,50,0.22) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .about-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Vertical beam descending into the badge */
+    .about-inner::before {
+      content: '';
+      position: absolute;
+      top: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 80px;
+      background: linear-gradient(to bottom, transparent, rgba(255,190,60,0.65));
+      animation: beamDrop 2.8s ease-in-out infinite;
+    }
+
+    @keyframes beamDrop {
+      0%   { opacity: 0; transform: translateX(-50%) scaleY(0.2); }
+      30%  { opacity: 1; }
+      70%  { opacity: 0.8; transform: translateX(-50%) scaleY(1); }
+      100% { opacity: 0; transform: translateX(-50%) scaleY(1); }
+    }
+
+    .section-badge {
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+      padding: 7px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,175,45,0.65);
+      background: rgba(255,130,0,0.12);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,200,80,1.0);
+      margin-bottom: 32px;
+      animation: badgeGlow 1.1s ease-in-out infinite alternate;
+      z-index: 1;
+    }
+
+    /* Primary bright beam sweep */
+    .section-badge::before {
+      content: '';
+      position: absolute;
+      top: -20%; left: -90%;
+      width: 55%;
+      height: 140%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255,220,100,0.10) 25%,
+        rgba(255,250,190,0.95) 50%,
+        rgba(255,220,100,0.10) 75%,
+        transparent 100%
+      );
+      transform: skewX(-20deg);
+      animation: badgeSweep 1.5s cubic-bezier(0.4,0,0.6,1) infinite;
+    }
+
+    /* Secondary trailing shimmer */
+    .section-badge::after {
+      content: '';
+      position: absolute;
+      top: -20%; left: -90%;
+      width: 28%;
+      height: 140%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255,240,160,0.55) 50%,
+        transparent 100%
+      );
+      transform: skewX(-20deg);
+      animation: badgeSweep 1.5s cubic-bezier(0.4,0,0.6,1) 0.18s infinite;
+    }
+
+    @keyframes badgeSweep {
+      0%   { left: -90%; opacity: 0; }
+      8%   { opacity: 1; }
+      55%  { left: 130%; opacity: 1; }
+      70%  { left: 130%; opacity: 0; }
+      100% { left: 130%; opacity: 0; }
+    }
+
+    @keyframes badgeGlow {
+      from {
+        border-color: rgba(255,160,30,0.55);
+        box-shadow:
+          0 0 10px rgba(255,140,0,0.25),
+          0 0 28px rgba(255,110,0,0.12),
+          inset 0 0 8px rgba(255,160,20,0.06);
+      }
+      to {
+        border-color: rgba(255,210,70,0.95);
+        box-shadow:
+          0 0 22px rgba(255,175,0,0.70),
+          0 0 55px rgba(255,130,0,0.32),
+          0 0 90px rgba(255,100,0,0.14),
+          inset 0 0 12px rgba(255,200,50,0.12);
+      }
+    }
+
+    .about-headline {
+      font-size: clamp(28px, 3.8vw, 54px);
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      text-wrap: balance;
+      margin-bottom: 24px;
+      background: linear-gradient(150deg, #fff 40%, rgba(255,175,50,0.85) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .about-body {
+      font-size: 17px;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.52);
+      max-width: 52ch;
+      margin: 0 auto 56px;
+      text-wrap: balance;
+    }
+
+    /* Goals label — animated shimmer */
+    .goals-label {
+      position: relative;
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 36px;
+      padding-bottom: 12px;
+      /* Gradient text — white with warm gold highlights */
+      background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.55) 0%,
+        rgba(255,255,255,0.95) 20%,
+        rgba(255,210,90,1.00) 40%,
+        rgba(255,255,255,0.95) 60%,
+        rgba(255,255,255,0.55) 100%
+      );
+      background-size: 250% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: labelShimmer 3.2s ease-in-out infinite;
+    }
+
+    /* Animated underline that draws itself then pulses */
+    .goals-label::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 1.5px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, rgba(255,190,60,0.80), transparent);
+      animation: labelUnderline 3.2s ease-in-out infinite;
+    }
+
+    @keyframes labelShimmer {
+      0%   { background-position: 120% 0; }
+      60%  { background-position: -30% 0; }
+      100% { background-position: -30% 0; }
+    }
+
+    @keyframes labelUnderline {
+      0%   { width: 0%;   left: 50%; opacity: 0; }
+      15%  { width: 100%; left: 0%;  opacity: 1; }
+      70%  { width: 100%; left: 0%;  opacity: 0.7; }
+      100% { width: 0%;   left: 50%; opacity: 0; }
+    }
+
+    .goals-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 64px;
+    }
+
+    .goal-item {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      background: rgba(255,140,20,0.04);
+      border: 1px solid rgba(255,140,20,0.14);
+      border-radius: 16px;
+      padding: 18px 24px;
+      text-align: left;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .goal-item:hover {
+      background: rgba(255,140,20,0.09);
+      border-color: rgba(255,165,40,0.38);
+    }
+
+    .goal-bubble {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff9a20, #e06a00);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(255,130,0,0.35);
+    }
+
+    .goal-text {
+      font-size: 16px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.88);
+      letter-spacing: -0.01em;
+    }
+
+    /* Divider quote */
+    .about-divider {
+      width: 48px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(195,165,100,0.45), transparent);
+      margin: 0 auto 36px;
+    }
+
+    .about-quote {
+      font-size: clamp(18px, 2.4vw, 26px);
+      font-style: italic;
+      font-weight: 400;
+      /* Very faint warm tint on the quote */
+      color: rgba(220,200,160,0.68);
+      line-height: 1.45;
+      letter-spacing: -0.02em;
+      margin-bottom: 56px;
+      text-wrap: balance;
+    }
+
+    /* CTA block */
+    .about-cta-block {
+      background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 24px;
+      padding: 52px 40px;
+      text-align: center;
+    }
+
+    .cta-headline {
+      font-size: clamp(13px, 1.2vw, 16px);
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.40);
+      margin-bottom: 14px;
+    }
+
+    /* ── "This is DayOne." light-outline frame ── */
+
+    /* Outer frame: holds the rotating gradient "border" */
+    .cta-brand-frame {
+      position: relative;
+      display: inline-block;
+      border-radius: 18px;
+      padding: 3px;          /* the visible border thickness */
+      margin-bottom: 32px;
+      /* start with a dim static border */
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+
+    /* The spinning light trail — hidden until .lit */
+    .cta-brand-frame::before {
+      content: '';
+      position: absolute;
+      /* Needs to be large enough to cover all corners when rotating */
+      inset: -120%;
+      /* Two bright hotspots 180° apart for continuous visual interest */
+      background: conic-gradient(
+        from 0deg,
+        transparent    0deg,
+        transparent  158deg,
+        rgba(255,240,150,0.12) 164deg,
+        rgba(255,242,160,0.55) 171deg,
+        rgba(255,255,225,0.95) 176deg,
+        rgba(255,242,160,0.55) 181deg,
+        rgba(255,240,150,0.10) 187deg,
+        transparent  196deg,
+        transparent  330deg,
+        rgba(255,245,180,0.18) 340deg,
+        rgba(255,238,148,0.72) 350deg,
+        rgba(255,255,225,1.00) 355deg,
+        rgba(255,238,148,0.72) 360deg
+      );
+      transform-origin: center;
+      animation: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    /* Pulsing glow ring — fires continuously once .lit */
+    .cta-brand-frame::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      box-shadow: inset 0 0 0 1px rgba(255,230,130,0);
+      transition: none;
+    }
+
+    /* Inner dark bg fills the "inside" of the border */
+    .cta-brand-inner {
+      position: relative;
+      z-index: 1;
+      border-radius: 15px;
+      background: rgba(4,6,16,0.97);
+      padding: 28px 44px 24px;
+    }
+
+    /* ACTIVE STATE — triggered by JS — spins FOREVER */
+    .cta-brand-frame.lit::before {
+      opacity: 1;
+      animation:
+        rotateSweep  0.85s linear infinite,
+        sweepFadeIn  0.25s ease-out forwards;
+    }
+
+    .cta-brand-frame.lit::after {
+      animation: glowPulse 1.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes glowPulse {
+      from {
+        box-shadow: inset 0 0 0 1px rgba(255,225,110,0.22),
+                    0 0 18px rgba(255,210,100,0.10),
+                    0 0 40px rgba(255,195,70,0.05);
+      }
+      to {
+        box-shadow: inset 0 0 0 1px rgba(255,238,135,0.65),
+                    0 0 36px rgba(255,220,108,0.32),
+                    0 0 72px rgba(255,200,75,0.16),
+                    0 0 110px rgba(255,185,55,0.08);
+      }
+    }
+
+    @keyframes rotateSweep {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    @keyframes sweepFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* "This is DayOne." — the statement */
+    .cta-brand {
+      font-size: clamp(44px, 6.5vw, 92px);
+      font-weight: 700;
+      letter-spacing: -0.045em;
+      line-height: 0.96;
+      color: #fff;
+      /* No margin — handled by frame inner padding */
+      margin: 0;
+      text-shadow: none;
+      transition: text-shadow 0.4s;
+    }
+
+    /* Flash + settle glow on text */
+    .cta-brand.burst {
+      animation: textBurst 0.45s ease-out forwards, textPulse 2.2s ease-in-out 0.45s infinite alternate;
+    }
+
+    @keyframes textBurst {
+      0%   { text-shadow: 0 0 0   rgba(255,240,170,0); }
+      35%  { text-shadow: 0 0 80px rgba(255,245,185,0.95),
+                          0 0 160px rgba(255,225,110,0.70),
+                          0 0 240px rgba(255,200,60,0.35); }
+      100% { text-shadow: 0 0 22px rgba(255,230,140,0.30),
+                          0 0 48px rgba(255,210,90,0.14); }
+    }
+
+    @keyframes textPulse {
+      from { text-shadow: 0 0 18px rgba(255,225,130,0.22), 0 0 36px rgba(255,205,80,0.10); }
+      to   { text-shadow: 0 0 32px rgba(255,225,130,0.42), 0 0 64px rgba(255,205,80,0.20); }
+    }
+
+    /* Full-screen flash overlay */
+    #light-flash {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: radial-gradient(ellipse 80% 60% at 50% 50%,
+        rgba(255,248,220,0.55) 0%, rgba(255,230,140,0.10) 50%, transparent 75%);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    #light-flash.flash {
+      animation: flashBurst 0.7s ease-out forwards;
+    }
+
+    @keyframes flashBurst {
+      0%   { opacity: 0; }
+      15%  { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .cta-sub {
+      display: none;
+    }
+
+    .btn-cta-large {
+      display: inline-block;
+      padding: 16px 38px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ff9520, #e06800);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      letter-spacing: -0.02em;
+      transition: opacity 0.18s, transform 0.12s, box-shadow 0.18s;
+      box-shadow: 0 4px 28px rgba(255,120,0,0.40);
+    }
+    .btn-cta-large:hover {
+      opacity: 0.88;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 40px rgba(255,120,0,0.55);
+    }
+
+    .cta-tag {
+      margin-top: 18px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+    }
+
+    /* ══════════════════════════════════════
+       HOW IT WORKS SECTION
+    ══════════════════════════════════════ */
+    #how {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 24px 120px;
+      /* Semi-transparent so the beam shows through */
+      background: rgba(4,6,15,0.84);
+      overflow: hidden;
+    }
+
+    /* Top border line — vivid amber */
+    #how::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,155,30,0.55), transparent);
+    }
+
+    .how-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .how-kicker {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 14px;
+    }
+
+    .how-tagline {
+      font-size: clamp(28px, 3.8vw, 52px);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+      margin-bottom: 16px;
+      background: linear-gradient(150deg, #fff 40%, rgba(255,175,50,0.85) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .how-sub {
+      font-size: 16px;
+      color: rgba(255,255,255,0.45);
+      max-width: 46ch;
+      margin: 0 auto 64px;
+      line-height: 1.65;
+    }
+
+    /* Steps — card layout */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 72px;
+      text-align: left;
+    }
+
+    .step {
+      position: relative;
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      align-items: start;
+      gap: 20px;
+      padding: 26px 28px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(8px);
+      cursor: default;
+      transition: border-color 0.35s, background 0.35s, box-shadow 0.35s;
+    }
+
+    /* Arrow connector between step cards */
+    .step-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding-left: calc(28px + 20px);
+      height: 30px;
+      transition: opacity 0.35s;
+      opacity: 0.22;
+    }
+    .step-arrow.active {
+      opacity: 1;
+      animation: arrowFlow 1.4s ease-in-out infinite;
+    }
+
+    @keyframes arrowFlow {
+      0%   { opacity: 0.55; transform: translateY(0px); }
+      50%  { opacity: 1.00; transform: translateY(3px); }
+      100% { opacity: 0.55; transform: translateY(0px); }
+    }
+
+    /* Dim default step number */
+    .step-num {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,165,40,0.22);
+      background: rgba(255,130,0,0.05);
+      color: rgba(255,185,70,0.40);
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+      transition: background 0.35s, color 0.35s, border-color 0.35s, box-shadow 0.35s;
+    }
+
+    .step-content {}
+
+    .step-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+      color: rgba(255,255,255,0.42);
+      transition: color 0.35s;
+    }
+
+    .step-desc {
+      font-size: 14px;
+      line-height: 1.65;
+      color: rgba(255,255,255,0.25);
+      transition: color 0.35s;
+    }
+
+    /* ── Active state (JS scroll + hover) ── */
+    .step.active,
+    .step:hover {
+      border-color: rgba(255,160,30,0.42);
+      background: rgba(255,120,0,0.07);
+      box-shadow: 0 0 36px rgba(255,110,0,0.10), 0 2px 0 rgba(255,165,40,0.15) inset;
+    }
+    .step.active .step-num,
+    .step:hover .step-num {
+      background: linear-gradient(135deg, #ff9520, #e06800);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 0 22px rgba(255,130,0,0.55);
+    }
+    .step.active .step-title,
+    .step:hover .step-title { color: rgba(255,255,255,0.96); }
+    .step.active .step-desc,
+    .step:hover .step-desc  { color: rgba(255,255,255,0.62); }
+
+    /* Bottom CTA */
+    .how-cta-block {
+      border-top: 1px solid rgba(100,148,135,0.18);
+      padding-top: 56px;
+    }
+
+    .how-cta-headline {
+      font-size: clamp(20px, 2.4vw, 30px);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+
+    .how-cta-sub {
+      font-size: 14px;
+      color: rgba(255,255,255,0.40);
+      margin-bottom: 32px;
+    }
+
+    .how-form-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .how-email-input {
+      padding: 14px 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      width: 260px;
+      outline: none;
+      transition: border-color 0.18s, background 0.18s;
+    }
+    .how-email-input::placeholder { color: rgba(255,255,255,0.28); }
+    .how-email-input:focus {
+      border-color: rgba(255,255,255,0.26);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .btn-how-join {
+      padding: 14px 28px;
+      border-radius: 999px;
+      background: #fff;
+      color: #000;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      letter-spacing: -0.01em;
+      transition: background 0.18s, transform 0.12s;
+    }
+    .btn-how-join:hover { background: rgba(255,255,255,0.88); transform: translateY(-1px); }
+
+    .how-note {
+      font-size: 11px;
+      color: rgba(255,255,255,0.22);
+      letter-spacing: 0.02em;
+    }
+
+    /* ══════════════════════════════════════
+       FINALE SECTION (quote + CTA at bottom)
+    ══════════════════════════════════════ */
+    #finale {
+      position: relative;
+      width: 100%;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 24px 120px;
+      background: rgba(4,6,15,0.84);
+      overflow: hidden;
+      text-align: center;
+    }
+
+    #finale::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(195,165,100,0.18), transparent);
+    }
+
+    .finale-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+      width: 100%;
+    }
+
+    /* ══════════════════════════════════════
+       WAITLIST SUCCESS MODAL
+    ══════════════════════════════════════ */
+    #waitlist-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(2,3,10,0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      animation: modalOverlayIn 0.35s ease both;
+    }
+    #waitlist-modal.open { display: flex; }
+
+    @keyframes modalOverlayIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    #waitlist-modal-card {
+      position: relative;
+      width: 100%;
+      max-width: 460px;
+      background: linear-gradient(160deg, rgba(8,10,24,0.98) 0%, rgba(4,6,16,0.99) 100%);
+      border: 1px solid rgba(255,165,40,0.30);
+      border-radius: 28px;
+      padding: 52px 40px 44px;
+      text-align: center;
+      overflow: hidden;
+      box-shadow:
+        0 0 60px rgba(255,120,0,0.14),
+        0 0 120px rgba(255,80,0,0.06),
+        0 32px 80px rgba(0,0,0,0.60);
+      animation: modalCardIn 0.45s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes modalCardIn {
+      from { opacity: 0; transform: scale(0.88) translateY(16px); }
+      to   { opacity: 1; transform: scale(1.00) translateY(0px);  }
+    }
+
+    /* Ambient light glow behind card content */
+    .modal-glow {
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,140,0,0.18) 0%, rgba(255,80,0,0.06) 45%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Animated top border sweep */
+    #waitlist-modal-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%; right: -100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,190,60,0.90), rgba(255,230,140,1), rgba(255,190,60,0.90), transparent);
+      animation: modalBorderSweep 2.2s ease-in-out 0.4s both;
+    }
+
+    @keyframes modalBorderSweep {
+      from { left: -100%; right: 100%; opacity: 0; }
+      20%  { opacity: 1; }
+      to   { left: 100%;  right: -100%; opacity: 0; }
+    }
+
+    /* Check icon circle */
+    .modal-icon {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e06800, #ff9520);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      box-shadow: 0 0 24px rgba(255,130,0,0.55), 0 0 60px rgba(255,100,0,0.20);
+      animation: iconPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.25s both;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes iconPop {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-headline {
+      position: relative;
+      z-index: 1;
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      margin-bottom: 14px;
+      background: linear-gradient(150deg, #fff 40%, rgba(255,195,70,0.90) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .modal-sub {
+      position: relative;
+      z-index: 1;
+      font-size: 15px;
+      line-height: 1.65;
+      color: rgba(255,255,255,0.50);
+      max-width: 32ch;
+      margin: 0 auto 36px;
+    }
+
+    .modal-close {
+      position: relative;
+      z-index: 1;
+      display: inline-block;
+      padding: 14px 40px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #e06800, #ff9520);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.18s, transform 0.14s, box-shadow 0.18s;
+      box-shadow: 0 4px 28px rgba(255,120,0,0.42);
+      margin-bottom: 18px;
+    }
+    .modal-close:hover {
+      opacity: 0.90;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 40px rgba(255,120,0,0.58);
+    }
+
+    .modal-note {
+      position: relative;
+      z-index: 1;
+      font-size: 11px;
+      color: rgba(255,255,255,0.20);
+      letter-spacing: 0.02em;
+    }
+
+    /* Footer line */
+    footer {
+      padding: 28px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      background: #04060f;
+    }
+
+    .footer-logo {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: rgba(255,255,255,0.22);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Full-screen light flash overlay -->
+  <div id="light-flash"></div>
+
+  <!-- ══ WAITLIST SUCCESS MODAL ══ -->
+  <div id="waitlist-modal" role="dialog" aria-modal="true" aria-label="Waitlist confirmation">
+    <div id="waitlist-modal-card">
+      <!-- Subtle beam glow behind the card -->
+      <div class="modal-glow"></div>
+
+      <!-- Check icon -->
+      <div class="modal-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M6 14.5l5.5 5.5 10-11" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <h2 class="modal-headline">You're on the list.</h2>
+      <p class="modal-sub">We'll reach out the moment DayOne launches.<br>Stay sharp — Day One is coming.</p>
+
+      <button class="modal-close" id="modal-close-btn" aria-label="Close">
+        Got it &nbsp;→
+      </button>
+
+      <p class="modal-note">Your best self starts on Day One.</p>
+    </div>
+  </div>
+
+  <!-- ══ TOP BANNER ══ -->
+  <div id="top-banner" onclick="document.getElementById('hero').scrollIntoView({behavior:'smooth'}); setTimeout(()=>document.querySelector('.email-input').focus(),500)">
+    <span class="banner-dot"></span>
+    <span class="banner-text">Early access is open</span>
+    <span class="banner-text" style="opacity:0.5;font-weight:400;">·</span>
+    <span class="banner-cta">Join the Waitlist</span>
+    <span class="banner-dot"></span>
+  </div>
+
+  <!-- ══ NAV ══ -->
+  <nav>
+    <div class="nav-logo">DayOne</div>
+    <ul class="nav-links">
+      <li id="nav-join"   ><a href="#hero"    onclick="event.preventDefault();document.getElementById('hero').scrollIntoView({behavior:'smooth'})"    style="color:inherit;text-decoration:none;">Join</a></li>
+      <li id="nav-about"  ><a href="#about"   onclick="event.preventDefault();document.getElementById('about').scrollIntoView({behavior:'smooth'})"   style="color:inherit;text-decoration:none;">About</a></li>
+      <li id="nav-how"    ><a href="#how"     onclick="event.preventDefault();document.getElementById('how').scrollIntoView({behavior:'smooth'})"     style="color:inherit;text-decoration:none;">How it Works</a></li>
+    </ul>
+  </nav>
+
+  <!-- ══ HERO ══ -->
+  <section id="hero">
+    <canvas id="ray-canvas"></canvas>
+
+    <div class="hero-body">
+      <p class="eyebrow">App launching soon</p>
+      <h1 class="hero-heading">You had structure once.<br>You can have it again.</h1>
+      <p class="hero-sub">DayOne is the productivity app that breaks your goals into daily actions — and makes sure you actually follow through.</p>
+
+      <!-- Formspree success message -->
+      <div data-fs-success style="display:none;" class="form-success-msg">
+        🎉 You're on the list! We'll be in touch.
+      </div>
+
+      <form id="waitlist-form" class="form-row" id="hero-email-row">
+        <input
+          class="email-input"
+          type="email"
+          name="email"
+          placeholder="your@email.com"
+          required
+          autocomplete="email"
+          data-fs-field
+        >
+        <button class="btn-join" type="submit" data-fs-submit-btn>Join Waitlist</button>
+      </form>
+
+      <p class="form-note" data-fs-error style="color:rgba(255,100,80,0.85);display:none;"></p>
+      <p class="form-note" id="form-note-default">No spam &nbsp;·&nbsp; Unsubscribe any time</p>
+    </div>
+
+  </section>
+
+  <!-- ══ ABOUT ══ -->
+  <section id="about">
+    <div class="about-inner">
+
+      <div class="section-badge">Now accepting early access</div>
+
+      <h2 class="about-headline">Every version of you that failed had one thing in common — no one held them accountable.</h2>
+
+      <p class="about-body">DayOne is an app built on a no B.S. approach — it breaks bad habits, demands accountability, and drives real results.</p>
+
+      <p class="goals-label">Your Transformation Framework</p>
+
+      <div class="goals-list">
+        <div class="goal-item">
+          <div class="goal-bubble">1</div>
+          <span class="goal-text">Stack Small Wins Daily</span>
+        </div>
+        <div class="goal-item">
+          <div class="goal-bubble">2</div>
+          <span class="goal-text">Show Up For Yourself Consistently</span>
+        </div>
+        <div class="goal-item">
+          <div class="goal-bubble">3</div>
+          <span class="goal-text">Become the Best Version of Yourself</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ HOW IT WORKS ══ -->
+  <section id="how">
+    <div class="how-inner">
+
+      <p class="how-kicker">How it Works</p>
+      <h2 class="how-tagline">Simple. No B.S. Effective.</h2>
+      <p class="how-sub">Most apps only want your attention. DayOne is the app that wants your success.</p>
+
+      <div class="steps">
+
+        <div class="step" data-step="1">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <p class="step-title">Write a Goal</p>
+            <p class="step-desc">DayOne pushes you to define what your success actually looks like. No vague intentions — real targets.</p>
+          </div>
+        </div>
+
+        <div class="step-arrow">
+          <svg width="18" height="28" viewBox="0 0 18 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="9" y1="0" x2="9" y2="18" stroke="rgba(255,165,40,0.9)" stroke-width="1.5" stroke-linecap="round"/>
+            <polyline points="3,13 9,21 15,13" fill="none" stroke="rgba(255,165,40,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <div class="step" data-step="2">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <p class="step-title">AI Breaks it Down</p>
+            <p class="step-desc">Your goal is broken into straightforward, achievable steps. No overwhelm. Just the next move.</p>
+          </div>
+        </div>
+
+        <div class="step-arrow">
+          <svg width="18" height="28" viewBox="0 0 18 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="9" y1="0" x2="9" y2="18" stroke="rgba(255,165,40,0.9)" stroke-width="1.5" stroke-linecap="round"/>
+            <polyline points="3,13 9,21 15,13" fill="none" stroke="rgba(255,165,40,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <div class="step" data-step="3">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <p class="step-title">Accountability Features</p>
+            <p class="step-desc">Streaks, visual verification, timers, and more — built to demand accountability and drive real results.</p>
+          </div>
+        </div>
+
+        <div class="step-arrow">
+          <svg width="18" height="28" viewBox="0 0 18 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="9" y1="0" x2="9" y2="18" stroke="rgba(255,165,40,0.9)" stroke-width="1.5" stroke-linecap="round"/>
+            <polyline points="3,13 9,21 15,13" fill="none" stroke="rgba(255,165,40,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <div class="step" data-step="4">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <p class="step-title">Watch Your Life Change</p>
+            <p class="step-desc">You stopped waiting. You started doing. You unlocked your full potential.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="how-cta-block" style="border-top:none; padding-top:40px; display:flex; flex-direction:column; align-items:center;">
+        <div class="cta-brand-frame" id="cta-brand-frame-how">
+          <div class="cta-brand-inner">
+            <p class="cta-brand" id="cta-brand-text-how">This is DayOne.</p>
+          </div>
+        </div>
+        <button class="btn-cta-large" onclick="document.getElementById('hero').scrollIntoView({behavior:'smooth'}); setTimeout(()=>document.querySelector('.email-input').focus(),500)">Join the Waitlist →</button>
+        <p class="cta-tag">Your system. Your rules. Your results.</p>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══ FOOTER ══ -->
+  <footer>
+    <span class="footer-logo">DayOne</span>
+    <span class="footer-copy">© 2026 DayOne. All rights reserved.</span>
+  </footer>
+
+  <!-- ══ LIGHT BEAM CANVAS ══ -->
+  <script>
+    const canvas = document.getElementById('ray-canvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H, ox, oy;
+
+    let seed = 42;
+    function rnd() {
+      seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+      return (seed >>> 0) / 0xffffffff;
+    }
+    const rng = (a, b) => a + rnd() * (b - a);
+
+    const RAYS = [];
+
+    function buildRays() {
+      RAYS.length = 0;
+      seed = 42;
+
+      // Wide scatter — extends far beyond viewport
+      for (let i = 0; i < 52; i++) {
+        RAYS.push({
+          angle:   rng(Math.PI * 0.08, Math.PI * 0.92),
+          hw:      rng(0.0015, 0.008),
+          opacity: rng(0.014, 0.06),
+          warmth:  rng(0.0, 0.5),
+          lenMult: rng(1.4, 2.2),   // much longer
+        });
+      }
+      // Mid-brightness
+      for (let i = 0; i < 14; i++) {
+        RAYS.push({
+          angle:   rng(Math.PI * 0.18, Math.PI * 0.82),
+          hw:      rng(0.003, 0.013),
+          opacity: rng(0.06, 0.14),
+          warmth:  rng(0.3, 0.85),
+          lenMult: rng(1.5, 2.0),
+        });
+      }
+      // Hero shafts — long bright centre beams
+      const heroAngles = [0.35, 0.42, 0.50, 0.58, 0.65].map(f => f * Math.PI);
+      for (const ang of heroAngles) {
+        RAYS.push({
+          angle:   ang + rng(-0.015, 0.015),
+          hw:      rng(0.007, 0.019),
+          opacity: rng(0.11, 0.22),
+          warmth:  rng(0.6, 1.0),
+          lenMult: rng(1.8, 2.4),   // reach deep into the page
+        });
+      }
+    }
+
+    function drawScene() {
+      const diag = Math.sqrt(W * W + H * H);
+      ctx.clearRect(0, 0, W, H);
+
+      ctx.globalCompositeOperation = 'screen';
+
+      for (const ray of RAYS) {
+        const len = diag * ray.lenMult;
+        const a1  = ray.angle - ray.hw;
+        const a2  = ray.angle + ray.hw;
+        const ex1 = ox + Math.cos(a1) * len;
+        const ey1 = oy + Math.sin(a1) * len;
+        const ex2 = ox + Math.cos(a2) * len;
+        const ey2 = oy + Math.sin(a2) * len;
+
+        const r = Math.round(195 + ray.warmth * 58);
+        const g = Math.round(200 + ray.warmth * 48);
+        const b = Math.round(215 - ray.warmth * 65);
+
+        const grad = ctx.createRadialGradient(ox, oy, 0, ox, oy, len);
+        grad.addColorStop(0.00, `rgba(${r},${g},${b},${ray.opacity})`);
+        grad.addColorStop(0.06, `rgba(${r},${g},${b},${ray.opacity * 0.92})`);
+        grad.addColorStop(0.22, `rgba(${r},${g},${b},${ray.opacity * 0.55})`);
+        grad.addColorStop(0.50, `rgba(${r},${g},${b},${ray.opacity * 0.18})`);
+        grad.addColorStop(0.80, `rgba(${r},${g},${b},${ray.opacity * 0.04})`);
+        grad.addColorStop(1.00, `rgba(${r},${g},${b},0)`);
+
+        ctx.beginPath();
+        ctx.moveTo(ox, oy);
+        ctx.lineTo(ex1, ey1);
+        ctx.lineTo(ex2, ey2);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+
+      const haze = ctx.createRadialGradient(ox, oy, 0, ox, oy, diag * 0.90);
+      haze.addColorStop(0.00, 'rgba(200,196,180,0.10)');
+      haze.addColorStop(0.15, 'rgba(165,160,145,0.06)');
+      haze.addColorStop(0.40, 'rgba(110,107,95,0.025)');
+      haze.addColorStop(1.00, 'rgba(0,0,0,0)');
+      ctx.fillStyle = haze;
+      ctx.fillRect(0, 0, W, H);
+
+      let g = ctx.createRadialGradient(ox, oy, 0, ox, oy, H * 0.42);
+      g.addColorStop(0.00, 'rgba(242,235,210,0.26)');
+      g.addColorStop(0.10, 'rgba(220,212,188,0.14)');
+      g.addColorStop(0.35, 'rgba(160,152,130,0.05)');
+      g.addColorStop(1.00, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+      g = ctx.createRadialGradient(ox, oy, 0, ox, oy, H * 0.075);
+      g.addColorStop(0.00, 'rgba(255,252,238,0.82)');
+      g.addColorStop(0.40, 'rgba(248,244,220,0.34)');
+      g.addColorStop(0.80, 'rgba(230,224,195,0.08)');
+      g.addColorStop(1.00, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+      g = ctx.createRadialGradient(ox, oy, 0, ox, oy, H * 0.016);
+      g.addColorStop(0.00, 'rgba(255,255,255,1.0)');
+      g.addColorStop(0.50, 'rgba(255,254,248,0.60)');
+      g.addColorStop(1.00, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+      ctx.globalCompositeOperation = 'source-over';
+
+      const vig = ctx.createRadialGradient(ox, H * 0.35, H * 0.05, ox, H * 0.35, H * 1.05);
+      vig.addColorStop(0.00, 'rgba(0,0,0,0)');
+      vig.addColorStop(0.45, 'rgba(0,0,0,0.10)');
+      vig.addColorStop(1.00, 'rgba(0,0,0,0.78)');
+      ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H);
+
+      const bot = ctx.createLinearGradient(0, H * 0.42, 0, H);
+      bot.addColorStop(0, 'rgba(0,0,0,0)');
+      bot.addColorStop(1, 'rgba(0,0,0,0.68)');
+      ctx.fillStyle = bot; ctx.fillRect(0, 0, W, H);
+    }
+
+    // Parallax: source starts just above viewport top, travels down at 0.38×scroll speed.
+    // Capped so it never goes below 85% of viewport height — keeps beams pointing "forward".
+    const BASE_OY_FRAC = 0.18; /* push beam below banner+nav (~28+70px) */
+    const PARALLAX     = 0.38;
+
+    function getOy() {
+      const raw = H * BASE_OY_FRAC + window.scrollY * PARALLAX;
+      return Math.min(raw, H * 0.85);
+    }
+
+    function init() {
+      W  = canvas.width  = window.innerWidth;
+      H  = canvas.height = window.innerHeight;
+      ox = W * 0.50;
+      oy = getOy();
+      buildRays();
+      drawScene();
+    }
+
+    // ── Brand frame vars (hoisted here so onScroll can access them) ──
+    let brandFired = false;
+
+    function triggerBrand() {
+      if (brandFired) return;
+      brandFired = true;
+      const brandFrame = document.getElementById('cta-brand-frame');
+      const brandText  = document.getElementById('cta-brand-text');
+      const flashEl    = document.getElementById('light-flash');
+      if (!brandFrame) return;
+
+      flashEl.classList.add('flash');
+      flashEl.addEventListener('animationend', () => flashEl.classList.remove('flash'), { once: true });
+      setTimeout(() => {
+        brandFrame.classList.add('lit');
+        brandText.classList.add('burst');
+      }, 180);
+    }
+
+    function onScroll() {
+      const raw = H * BASE_OY_FRAC + window.scrollY * PARALLAX;
+      oy = Math.min(raw, H * 0.85);
+
+      // Fade canvas out as user scrolls past the hero section
+      // Start fading at 50% of hero height, fully gone at 100%
+      const heroHeight = document.getElementById('hero').offsetHeight || H;
+      const fadeStart  = heroHeight * 0.50;
+      const fadeEnd    = heroHeight * 1.00;
+      let opacity = 1;
+      if (window.scrollY > fadeStart) {
+        opacity = Math.max(0, 1 - (window.scrollY - fadeStart) / (fadeEnd - fadeStart));
+      }
+      canvas.style.opacity = opacity;
+
+      drawScene();
+    }
+
+    init();
+    window.addEventListener('resize', init);
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // ── Active nav via IntersectionObserver ──
+    // hero visible  → highlight "About"
+    // #about visible → highlight "How it Works"
+    // #how visible   → highlight "Contact"
+    const navMap = {
+      'hero':  'nav-join',
+      'about': 'nav-about',
+      'how':   'nav-how',
+    };
+
+    const allNavItems = Object.values(navMap).map(id => document.getElementById(id));
+
+    function setActive(navId) {
+      allNavItems.forEach(el => el && el.classList.remove('active'));
+      const el = document.getElementById(navId);
+      if (el) el.classList.add('active');
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActive(navMap[entry.target.id]);
+        }
+      });
+    }, { threshold: 0.4 });
+
+    ['hero', 'about', 'how'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    // Set initial active state
+    setActive('nav-about');
+
+    // ── "This is DayOne." — trigger each frame independently on scroll into view ──
+    function makeBrandObserver(frameId, textId) {
+      const frame = document.getElementById(frameId);
+      const text  = document.getElementById(textId);
+      if (!frame) return;
+      let fired = false;
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !fired) {
+            fired = true;
+            const flashEl = document.getElementById('light-flash');
+            flashEl.classList.add('flash');
+            flashEl.addEventListener('animationend', () => flashEl.classList.remove('flash'), { once: true });
+            setTimeout(() => {
+              frame.classList.add('lit');
+              if (text) text.classList.add('burst');
+            }, 180);
+          }
+        });
+      }, { threshold: 0.4 });
+      obs.observe(frame);
+    }
+
+    makeBrandObserver('cta-brand-frame-how', 'cta-brand-text-how');
+
+    // ── How it Works — scroll-activate steps + arrows one by one ──
+    const stepCards  = document.querySelectorAll('.step[data-step]');
+    const stepArrows = document.querySelectorAll('#how .step-arrow');
+    const howSection = document.getElementById('how');
+
+    function updateStepHighlights() {
+      if (!howSection) return;
+      const rect    = howSection.getBoundingClientRect();
+      const sectionH = howSection.offsetHeight;
+
+      // Step 1 fires when the section top crosses 70% down the viewport.
+      // Each subsequent step fires as the user scrolls 22% further through the section.
+      const trigger = window.innerHeight * 0.70 - rect.top; // px past the trigger line
+      const perStep = sectionH * 0.22;                      // scroll distance per step
+
+      const activeCount = Math.min(4, Math.max(0, Math.floor(trigger / perStep) + 1));
+
+      stepCards.forEach((step, i) => {
+        step.classList.toggle('active', i < activeCount);
+      });
+      // Arrow between step N and step N+1 lights up when step N activates
+      stepArrows.forEach((arrow, i) => {
+        arrow.classList.toggle('active', i < activeCount - 1);
+      });
+    }
+
+    window.addEventListener('scroll', updateStepHighlights, { passive: true });
+    updateStepHighlights();
+  </script>
+
+  <!-- ══ Formspree AJAX ══ -->
+  <script>
+    window.formspree = window.formspree || function () { (formspree.q = formspree.q || []).push(arguments); };
+    formspree('initForm', { formElement: '#waitlist-form', formId: 'mrevagja' });
+
+    // Open success modal on submission
+    const waitlistModal = document.getElementById('waitlist-modal');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+
+    document.getElementById('waitlist-form').addEventListener('formspree:success', function () {
+      waitlistModal.classList.add('open');
+      document.body.style.overflow = 'hidden'; // prevent scroll while modal open
+    });
+
+    function closeModal() {
+      waitlistModal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    modalCloseBtn.addEventListener('click', closeModal);
+
+    // Close on backdrop click
+    waitlistModal.addEventListener('click', function (e) {
+      if (e.target === waitlistModal) closeModal();
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+  <script src="https://unpkg.com/@formspree/ajax@1" defer></script>
+
+</body>
+</html>
