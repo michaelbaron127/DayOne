@@ -1880,16 +1880,40 @@
     const waitlistModal = document.getElementById('waitlist-modal');
     const modalCloseBtn = document.getElementById('modal-close-btn');
 
-    document.getElementById('waitlist-form').addEventListener('formspree:success', function () {
+    function openModal() {
       waitlistModal.classList.add('open');
       document.body.style.overflow = 'hidden';
+    }
+
+    // Show modal on successful Formspree submission (email)
+    document.getElementById('waitlist-form').addEventListener('formspree:success', openModal);
+
+    // Also show modal on submit directly so Enter key always works
+    document.getElementById('waitlist-form').addEventListener('submit', function () {
+      setTimeout(openModal, 600);
+    });
+
+    // Submit email form on Enter
+    document.querySelector('.email-input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); document.querySelector('#waitlist-form .btn-join').click(); }
     });
 
     // Phone form — Formspree Ajax SDK
     formspree('initForm', { formElement: '#phone-form', formId: 'xqeogaak' });
-    document.getElementById('phone-form').addEventListener('formspree:success', function () {
-      waitlistModal.classList.add('open');
-      document.body.style.overflow = 'hidden';
+    document.getElementById('phone-form').addEventListener('formspree:success', openModal);
+
+    document.getElementById('phone-form').addEventListener('submit', function () {
+      setTimeout(openModal, 600);
+    });
+
+    // Submit phone form on Enter
+    document.querySelector('.phone-input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); document.querySelector('#phone-form .btn-phone').click(); }
+    });
+
+    // Submit phone form on Enter
+    document.querySelector('.phone-input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); document.querySelector('#phone-form .btn-phone').click(); }
     });
 
     function closeModal() {
