@@ -260,6 +260,88 @@
       animation: fadeUp 1s 0.9s both;
     }
 
+    /* ── Phone signup ── */
+    .phone-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+      width: 100%;
+      max-width: 380px;
+    }
+    .phone-divider-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.10);
+    }
+    .phone-divider-text {
+      font-size: 11px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .phone-form-row {
+      margin-top: 10px;
+    }
+    .phone-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.30);
+      backdrop-filter: blur(14px);
+      transition: border-color 0.18s, background 0.18s;
+    }
+    .phone-input-wrap:focus-within {
+      border-color: rgba(255,255,255,0.22);
+      background: rgba(0,0,0,0.45);
+    }
+    .phone-flag { font-size: 14px; line-height: 1; }
+    .phone-prefix {
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      font-family: 'Inter', sans-serif;
+      border-right: 1px solid rgba(255,255,255,0.10);
+      padding-right: 8px;
+      margin-right: 2px;
+      white-space: nowrap;
+    }
+    .phone-input {
+      padding: 13px 4px;
+      border: none;
+      background: transparent;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      width: 130px;
+      outline: none;
+    }
+    .phone-input::placeholder { color: rgba(255,255,255,0.25); }
+    .btn-phone {
+      padding: 13px 24px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ff9520, #e06800);
+      border: none;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.18s, transform 0.18s;
+      letter-spacing: 0.01em;
+    }
+    .btn-phone:hover { opacity: 0.88; transform: scale(1.03); }
+    .btn-phone:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+    .phone-note {
+      margin-top: 8px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.18);
+      letter-spacing: 0.02em;
+    }
+
     .form-success-msg {
       margin-top: 8px;
       margin-bottom: 8px;
@@ -1367,6 +1449,30 @@
 
       <p class="form-note" data-fs-error style="color:rgba(255,100,80,0.85);display:none;"></p>
       <p class="form-note" id="form-note-default">No spam &nbsp;·&nbsp; Unsubscribe any time</p>
+
+      <div class="phone-divider">
+        <span class="phone-divider-line"></span>
+        <span class="phone-divider-text">or</span>
+        <span class="phone-divider-line"></span>
+      </div>
+
+      <form id="phone-form" class="form-row phone-form-row">
+        <div class="phone-input-wrap">
+          <span class="phone-flag">🇺🇸</span>
+          <span class="phone-prefix">+1</span>
+          <input
+            class="phone-input"
+            type="tel"
+            name="phone"
+            placeholder="(555) 000-0000"
+            autocomplete="tel"
+            pattern="[\d\s\(\)\-\+]{7,15}"
+            data-fs-field
+          >
+        </div>
+        <button class="btn-phone" type="submit" data-fs-submit-btn>Join Waitlist</button>
+      </form>
+      <p class="phone-note">We'll text you when DayOne launches. No spam.</p>
     </div>
 
   </section>
@@ -1776,7 +1882,14 @@
 
     document.getElementById('waitlist-form').addEventListener('formspree:success', function () {
       waitlistModal.classList.add('open');
-      document.body.style.overflow = 'hidden'; // prevent scroll while modal open
+      document.body.style.overflow = 'hidden';
+    });
+
+    // Phone form — Formspree Ajax SDK
+    formspree('initForm', { formElement: '#phone-form', formId: 'xqeogaak' });
+    document.getElementById('phone-form').addEventListener('formspree:success', function () {
+      waitlistModal.classList.add('open');
+      document.body.style.overflow = 'hidden';
     });
 
     function closeModal() {
